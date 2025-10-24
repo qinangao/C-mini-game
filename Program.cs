@@ -30,14 +30,14 @@ while (!shouldExit)
     if (TerminalResized())
     {
         Console.Clear();
-        Console.WriteLine("Console was resized. Program exiting.");
-        break;
+        Console.Write("Console was resized. Program exiting.");
+        shouldExit = true;
     }
     else
     {
         if (isPlayerSpedup())
         {
-            Move(false, 3);
+            Move(3, false);
         }
         else if (isPlayerFreezed())
         {
@@ -45,14 +45,13 @@ while (!shouldExit)
         }
         else
         {
-            Move();
+            Move(isNondirectionalInput: false);
         }
         if (isFoodConsumed())
         {
             ChangePlayer();
             ShowFood();
         }
-
     }
 }
 
@@ -69,28 +68,32 @@ void ShowFood()
     food = random.Next(0, foods.Length);
 
     // Update food position to a random location
-
     foodX = random.Next(0, width - player.Length);
     foodY = random.Next(0, height - 1);
-
 
     // Display the food at the location
     Console.SetCursorPosition(foodX, foodY);
     Console.Write(foods[food]);
 }
 
+// Returns true if the player location matches the food location
 bool isFoodConsumed()
 {
-    return playerX == foodX && playerY == foodY;
+    return playerY == foodY && playerX == foodX;
 }
+
+// Returns true if the player appearance represents a sick state
 bool isPlayerFreezed()
 {
     return player.Equals(states[2]);
 }
+
+// Returns true if the player appearance represents a fast state
 bool isPlayerSpedup()
 {
     return player.Equals(states[1]);
 }
+
 // Changes the player to match the food consumed
 void ChangePlayer()
 {
@@ -107,7 +110,7 @@ void FreezePlayer()
 }
 
 // Reads directional input from the Console and moves the player
-void Move(bool isNondirectionalInput = false, int speed = 1)
+void Move(int speed = 1, bool isNondirectionalInput = false)
 {
     int lastX = playerX;
     int lastY = playerY;
@@ -130,12 +133,8 @@ void Move(bool isNondirectionalInput = false, int speed = 1)
             shouldExit = true;
             break;
         default:
-            if (isNondirectionalInput)
-            {
-                Console.Clear();
-                Console.WriteLine("Nondirectional key was pressed. Program exiting.");
-                shouldExit = true;
-            }
+            // Exit if any other keys are pressed
+            shouldExit = isNondirectionalInput;
             break;
     }
 
@@ -155,8 +154,6 @@ void Move(bool isNondirectionalInput = false, int speed = 1)
     Console.Write(player);
 }
 
-
-
 // Clears the console, displays the food and player
 void InitializeGame()
 {
@@ -165,4 +162,3 @@ void InitializeGame()
     Console.SetCursorPosition(0, 0);
     Console.Write(player);
 }
-
